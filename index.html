@@ -16,7 +16,7 @@
 	    padding: 3px;
 	}
     </style>
-    <title>供給照会入力画面</title>
+    <title>しゅん工調査結果入力画面</title>
     <script src="mailTrigger.js" type="text/javascript" charset="utf-8" ></script>
     <script>
 	if ('serviceWorker' in navigator) {
@@ -27,21 +27,29 @@
 	    console.log('登録に失敗しました。' + error);
 	  });
 	}
+	    
+	var unittext = document.getElementById('unit');
+	var unitsel = document.getElementById('zetsuen_shubetsu');
+	if ( unitsel == "漏れ電流測定" ) {
+	    unittext.textContent = 'A';
+	}
+	
     </script>
     <!-- PWA Code for iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="供給照会">
+    <meta name="apple-mobile-web-app-title" content="しゅん工調査">
     <link rel="apple-touch-icon" href="images/icon1.png">
 </head>
 <body>
-・以下に入力した後、作成されるメールをそのまま送信してください<br>
-（供給可否のメールが返信されます）<br>
-・入力は数字のみ<br>
-注）IEでは動作しません。
+・文字入力は数字のみ<br>
+注）IEでは動作しません。画面は開発中のものです。
 <hr>
     <input type="hidden" id="hidden_data" value="送信したい情報をここに記載">
-    <p>引込柱番号<font color="Red">[必須]</font><input type="tel" id="no" size="12" maxlength="12">
+    <p><input type="radio" id="zetsuen_shubetsu" name="zet" value="絶縁抵抗測定"><br>
+       <input type="radio" id="zetsuen_shubetsu" name="zet" value="漏れ電流測定">
+    <p>測定値<font color="Red">[必須]</font><input type="tel" id="no" size="5">
+	<div id="unit">Ω</div>
     <p>契約種別<font color="Red">[必須]</font>
     <select id="ks">
 	<option value="1">一般電灯（下記以外）</option>
