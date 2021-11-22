@@ -17,7 +17,7 @@
 	}
     </style>
     <title>しゅん工調査結果入力画面</title>
-    <script src="mailTrigger.js" type="text/javascript" charset="utf-8" ></script>
+<!--    <script src="mailTrigger.js" type="text/javascript" charset="utf-8" ></script> -->
     <script>
 	if ('serviceWorker' in navigator) {
 	  navigator.serviceWorker.register('sw.js')
@@ -27,13 +27,94 @@
 	    console.log('登録に失敗しました。' + error);
 	  });
 	}
-	    
-	var unittext = document.getElementById('unit');
-	var unitsel = document.getElementById('zetsuen_shubetsu');
-	if ( unitsel == "漏れ電流測定" ) {
-	    unittext.textContent = 'A';
+
+	window.addEventListener( "DOMContentLoaded" , ()=> {
+            document.getElementsByName("zet").forEach(
+                r => r.addEventListener("change" , e =>{
+		    const u = document.getElementById('unit');
+		    const his = document.getElementById('hissu');
+		    const input = document.getElementById('ins');
+		    if(e.target.value == 1) { 
+			u.textContent = 'MΩ';
+			his.textContent = '[必須]';
+			input.disabled = false;
+			hantei();
+		    }else if(e.target.value == 2) {
+			u.textContent = 'mA';
+			his.textContent = '[必須]';
+			input.disabled = false;
+			hantei();
+		    }else if(e.target.value == 3) {
+			input.value = '';
+			his.textContent = '';
+			input.disabled = true;
+			hantei();
+		    };
+                })
+            );
+ 
+        });
+
+	function hantei() {
+	    //絶縁良否判定
+	    const h1 = document.getElementsByName('zet');
+	    const h2 = document.getElementById('ins').value;
+	    const res1 = document.getElementById('zhantei');
+	    if((h1.item(0).checked && h2 >= 0.2) || (h1.item(1).checked && h2 <= 1 && h2 != '')) {
+		res1.textContent = '絶縁良好';
+	    }else if(h1.item(0).checked && h2 >= 0.1 && h2 < 0.2) {
+		res1.textContent = '対地電圧150V以下で絶縁良好';
+	    }else if(h2 != '') {
+		res1.innerHTML = '<font color="Red">絶縁不良</font>';
+	    }else {
+		res1.textContent = '';
+	    }
+
+	    //接地良否判定
+	    const sokutei = [document.getElementById('e1value').value,
+			     document.getElementById('e2value').value,
+			     document.getElementById('e3value').value];
+	    const shubetsu = [document.getElementById('e1').value,
+			      document.getElementById('e2').value,
+			      document.getElementById('e3').value];
+	    let e_res = [document.getElementById('e1hantei'),
+			 document.getElementById('e2hantei'),
+			 document.getElementById('e3hantei')];
+	    for (let i=0; i <=2; i++){
+		e_res[i].textContent = judge(shubetsu[i], sokutei[i]);
+	    }
 	}
-	
+
+	function judge(sw, val) {
+	    switch (Number(sw)){
+		case 2:
+		    if(val <= 10 && val != '') {
+			return '適合';
+		    }else if(val != '') {
+			return '不適';
+		    }else {
+			return '';
+		    }
+		    break;
+		case 3:
+		    if(val != '') {
+			return '一線地絡電流から算出要';
+		    }else {
+			return '';
+		    }
+		    break;
+		default: //1or4（D種・C種）の場合
+		    if(val <= 10 && val != '' || sw == 1 && val <= 100 && val != '') {
+			return '適合';
+		    }else if(val <= 500 && val != '') {
+			return '0.5秒以内で動作するELB施設で適合';
+		    }else if(val != '') {
+			return '不適';
+		    }else {
+			return '';
+		    }
+	    }
+	}
     </script>
     <!-- PWA Code for iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -46,60 +127,66 @@
 注）IEでは動作しません。画面は開発中のものです。
 <hr>
     <input type="hidden" id="hidden_data" value="送信したい情報をここに記載">
-    <p><input type="radio" id="zetsuen_shubetsu" name="zet" value="絶縁抵抗測定"><br>
-       <input type="radio" id="zetsuen_shubetsu" name="zet" value="漏れ電流測定">
-    <p>測定値<font color="Red">[必須]</font><input type="tel" id="no" size="5">
-	<div id="unit">Ω</div>
-    <p>契約種別<font color="Red">[必須]</font>
-    <select id="ks">
-	<option value="1">一般電灯（下記以外）</option>
-	<option value="2">街灯・信号</option>
-	<option value="3">ロードヒーティング・暖房専用契約</option>
-	<option value="4">動力</option>
-    </select>
-<p>容量<font color="Red">[新設/増加いずれか必須]</font>
+
 <table border="1" class="main">
-<tr>
-	<td colspan="2" align="center">区分</td><td align="center">容量</td><td align="center">単位</td>
-<tr>
-	<td colspan="2" align="center">新設</td>
-	<td><input type="tel" id="kw" size="4" maxlength="4">
-	<td><select id="unit1">
-	    <option value="A">A</option>
-	    <option value="kVA">kVA</option>
-	    <option value="kW">kW</option>
-	    <option value="VA">VA</option>
-	    <option value="W">W</option>
-	</select></td></tr>
-<tr>
-	<td rowspan=2>増加</td>
-	<td>増加前</td>
-	<td><input type="tel" id="mae" size="4" maxlength="4">
-	<td><select id="unit2">
-	    <option value="A">A</option>
-	    <option value="kVA">kVA</option>
-	    <option value="kW">kW</option>
-	    <option value="VA">VA</option>
-	    <option value="W">W</option>
-	</select></td></tr>
-<tr>
-	<td>増加後</td>
-	<td><input type="tel" id="ato" size="4" maxlength="4">
-	<td><select id="unit3">
-	    <option value="A">A</option>
-	    <option value="kVA">kVA</option>
-	    <option value="kW">kW</option>
-	    <option value="VA">VA</option>
-	    <option value="W">W</option>
-	</select></td></tr>
+    <tr><td align="center">絶縁状態<br>確認
+    </td>
+    <td>
+        <label><input type="radio" name="zet" value="1" checked>絶縁抵抗測定<br></label>
+        <label><input type="radio" name="zet" value="2">漏れ電流測定<br></label>
+        <label><input type="radio" name="zet" value="3">目視点検</label>
+    </td><td>
+        <p>測定値<font color="Red"><span id="hissu">[必須]</span></font>
+	<input type="tel" id="ins" size="5" onchange="hantei()"><span id="unit">MΩ</span><br><span id="zhantei"></span>
+    </td></tr>
+</table><br>
+<table border="1" class="main">
+    <tr><td align="center" rowspan=3>接地抵抗<br>測定</td>
+    <td>
+        <select id="e1">
+	    <option value="1" selected>D種</option>
+	    <option value="2">A種</option>
+	    <option value="3">B種</option>
+	    <option value="4">C種</option>
+        </select>
+    </td>
+    <td>
+        測定値<input type="tel" id="e1value" size="5" onchange="hantei()">Ω<span id="e1hantei"></span>
+    </td></tr>
+    <tr><td>
+        <select id="e2">
+	    <option value="1">D種</option>
+	    <option value="2" selected>A種</option>
+	    <option value="3">B種</option>
+	    <option value="4">C種</option>
+        </select>
+    </td>
+    <td>
+        測定値<input type="tel" id="e2value" size="5" onchange="hantei()">Ω<span id="e2hantei"></span>
+    </td></tr>
+    <tr><td>
+        <select id="e3">
+	    <option value="1">D種</option>
+	    <option value="2">A種</option>
+	    <option value="3" selected>B種</option>
+	    <option value="4">C種</option>
+        </select>
+    </td><td>
+	測定値<input type="tel" id="e3value" size="5" onchange="hantei()">Ω<span id="e3hantei"></span>
+    </td></tr>
 </table>
-    <p>電気方式<font color="Red">[必須]</font>
-    <select id="phase">
-	<option value="131">単相3線100V</option>
-	<option value="121">単相2線100V</option>
-	<option value="122">単相2線200V</option>
-	<option value="332">三相3線200V</option>
-    </select>
+
+<p>調査結果
+    <label><input type="radio" name="kekka" value="1" checked>適合　　</label>
+    <label><input type="radio" name="kekka" value="2">不適合</label>
+
+<p>電気工作物区分
+<select id="kousak">
+    <option value="1" selected>一般用</option>
+    <option value="2">特定</option>
+    <option value="3">受託</option>
+</select>
     <p><button id="mail">メール起動</button>
+
 </body>
 </html>
