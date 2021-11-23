@@ -17,7 +17,7 @@
 	}
     </style>
     <title>しゅん工調査結果入力画面</title>
-<!--    <script src="mailTrigger.js" type="text/javascript" charset="utf-8" ></script> -->
+    <script src="mailTrigger.js" type="text/javascript" charset="utf-8" ></script>
     <script>
 	if ('serviceWorker' in navigator) {
 	  navigator.serviceWorker.register('sw.js')
@@ -81,7 +81,7 @@
 			 document.getElementById('e2hantei'),
 			 document.getElementById('e3hantei')];
 	    for (let i=0; i <=2; i++){
-		e_res[i].textContent = judge(shubetsu[i], sokutei[i]);
+		e_res[i].innerHTML = judge(shubetsu[i], sokutei[i]);
 	    }
 	}
 
@@ -91,7 +91,7 @@
 		    if(val <= 10 && val != '') {
 			return '適合';
 		    }else if(val != '') {
-			return '不適';
+			return '<font color="Red">不適</font>';
 		    }else {
 			return '';
 		    }
@@ -109,11 +109,15 @@
 		    }else if(val <= 500 && val != '') {
 			return '0.5秒以内で動作するELB施設で適合';
 		    }else if(val != '') {
-			return '不適';
+			return '<font color="Red">不適</font>';
 		    }else {
 			return '';
 		    }
 	    }
+	}
+
+	function tekigo(disp) {
+	    document.getElementById('fucho').style.display = disp;
 	}
     </script>
     <!-- PWA Code for iOS -->
@@ -128,22 +132,26 @@
 <hr>
     <input type="hidden" id="hidden_data" value="送信したい情報をここに記載">
 
+絶縁状態確認
 <table border="1" class="main">
-    <tr><td align="center">絶縁状態<br>確認
-    </td>
-    <td>
+    <tr><td align="center">確認方法</td>
+    <td align="center">測定値<font color="Red"><span id="hissu">[必須]</span></font>
+    </td></tr>
+    <tr><td>
         <label><input type="radio" name="zet" value="1" checked>絶縁抵抗測定<br></label>
         <label><input type="radio" name="zet" value="2">漏れ電流測定<br></label>
         <label><input type="radio" name="zet" value="3">目視点検</label>
     </td><td>
-        <p>測定値<font color="Red"><span id="hissu">[必須]</span></font>
 	<input type="tel" id="ins" size="5" onchange="hantei()"><span id="unit">MΩ</span><br><span id="zhantei"></span>
     </td></tr>
 </table><br>
+
+接地抵抗測定
 <table border="1" class="main">
-    <tr><td align="center" rowspan=3>接地抵抗<br>測定</td>
-    <td>
-        <select id="e1">
+    <tr><td>種別</td>
+    <td>測定値</td></tr>
+    <tr><td>
+        <select id="e1" onchange="hantei()">
 	    <option value="1" selected>D種</option>
 	    <option value="2">A種</option>
 	    <option value="3">B種</option>
@@ -151,10 +159,10 @@
         </select>
     </td>
     <td>
-        測定値<input type="tel" id="e1value" size="5" onchange="hantei()">Ω<span id="e1hantei"></span>
+        <input type="tel" id="e1value" size="5" onchange="hantei()">Ω<br><span id="e1hantei"></span>
     </td></tr>
     <tr><td>
-        <select id="e2">
+        <select id="e2" onchange="hantei()">
 	    <option value="1">D種</option>
 	    <option value="2" selected>A種</option>
 	    <option value="3">B種</option>
@@ -162,23 +170,33 @@
         </select>
     </td>
     <td>
-        測定値<input type="tel" id="e2value" size="5" onchange="hantei()">Ω<span id="e2hantei"></span>
+        <input type="tel" id="e2value" size="5" onchange="hantei()">Ω<br><span id="e2hantei"></span>
     </td></tr>
     <tr><td>
-        <select id="e3">
+        <select id="e3" onchange="hantei()">
 	    <option value="1">D種</option>
 	    <option value="2">A種</option>
 	    <option value="3" selected>B種</option>
 	    <option value="4">C種</option>
         </select>
     </td><td>
-	測定値<input type="tel" id="e3value" size="5" onchange="hantei()">Ω<span id="e3hantei"></span>
+	<input type="tel" id="e3value" size="5" onchange="hantei()">Ω<br><span id="e3hantei"></span>
     </td></tr>
 </table>
 
 <p>調査結果
-    <label><input type="radio" name="kekka" value="1" checked>適合　　</label>
-    <label><input type="radio" name="kekka" value="2">不適合</label>
+    <label><input type="radio" name="kekka" value="1" onclick="tekigo('none')" checked>適合</label>　　
+    <label><input type="radio" name="kekka" value="2" onclick="tekigo('none')">不適合</label>　　
+    <label><input type="radio" name="kekka" value="3" onclick="tekigo('block')">調査不能</label>
+    <div id="fucho" hidden>
+	調査不能理由：
+        <select id="fucho_riyu">
+	    <option value="1">立ち合い者不在のため</option>
+	    <option value="2">施錠・閉鎖のため</option>
+	    <option value="3">調査場所不明</option>
+	    <option value="4">その他</option>
+        </select>
+    </div>
 
 <p>電気工作物区分
 <select id="kousak">
@@ -186,7 +204,9 @@
     <option value="2">特定</option>
     <option value="3">受託</option>
 </select>
-    <p><button id="mail">メール起動</button>
 
+<p>連絡事項<br><textarea cols=20 rows=3></textarea>
+
+<p><button id="mail">メール起動</button>
 </body>
 </html>
