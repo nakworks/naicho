@@ -34,7 +34,7 @@
 		    const u = document.getElementById('unit');
 		    const his = document.getElementById('hissu');
 		    const input = document.getElementById('ins');
-		    if(e.target.value == 1) { 
+		    if(e.target.value == 1) {
 			u.textContent = 'MΩ';
 			his.textContent = '[必須]';
 			input.disabled = false;
@@ -52,7 +52,7 @@
 		    };
                 })
             );
- 
+
         });
 
 	function hantei() {
@@ -61,13 +61,13 @@
 	    const h2 = document.getElementById('ins').value;
 	    const res1 = document.getElementById('zhantei');
 	    if((h1.item(0).checked && h2 >= 0.2) || (h1.item(1).checked && h2 <= 1 && h2 != '')) {
-		res1.textContent = '絶縁良好';
+    		res1.textContent = '絶縁良好';
 	    }else if(h1.item(0).checked && h2 >= 0.1 && h2 < 0.2) {
-		res1.textContent = '対地電圧150V以下で絶縁良好';
+    		res1.textContent = '対地電圧150V以下で絶縁良好';
 	    }else if(h2 != '') {
-		res1.innerHTML = '<font color="Red">絶縁不良</font>';
+    		res1.innerHTML = '<font color="Red">絶縁不良</font>';
 	    }else {
-		res1.textContent = '';
+    		res1.textContent = '';
 	    }
 
 	    //接地良否判定
@@ -81,13 +81,13 @@
 			 document.getElementById('e2hantei'),
 			 document.getElementById('e3hantei')];
 	    for (let i=0; i <=2; i++){
-		e_res[i].innerHTML = judge(shubetsu[i], sokutei[i]);
+    		e_res[i].innerHTML = judge(shubetsu[i], sokutei[i]);
 	    }
 	}
 
-	function judge(sw, val) {
+	function judge(sw, val) { //接地抵抗値適否判定関数
 	    switch (Number(sw)){
-		case 2:
+		case 2: //A種
 		    if(val <= 10 && val != '') {
 			return '適合';
 		    }else if(val != '') {
@@ -96,7 +96,7 @@
 			return '';
 		    }
 		    break;
-		case 3:
+		case 3: //B種
 		    if(val != '') {
 			return '判定せず（一線地絡電流から算出要）';
 		    }else {
@@ -116,8 +116,10 @@
 	    }
 	}
 
-	function tekigo(disp) {
-	    document.getElementById('fucho').style.display = disp;
+	function viewSwitch(disp, fl) {
+    document.getElementById('fucho').style.display = "none";
+    document.getElementById('futekigo').style.display = "none";
+	  document.getElementById(disp).style.display = fl;
 	}
     </script>
     <!-- PWA Code for iOS -->
@@ -130,7 +132,6 @@
 ・文字入力は数字のみ<br>
 注）IEでは動作しません。画面は開発中のものです。
 <hr>
-    <input type="hidden" id="hidden_data" value="送信したい情報をここに記載">
 
 絶縁状態確認
 <table border="1" class="main">
@@ -152,10 +153,10 @@
     <td>測定値</td></tr>
     <tr><td>
         <select id="e1" onchange="hantei()">
-	    <option value="1" selected>D種</option>
-	    <option value="2">A種</option>
-	    <option value="3">B種</option>
-	    <option value="4">C種</option>
+	    <option value="D" selected>D種</option>
+	    <option value="A">A種</option>
+	    <option value="B">B種</option>
+	    <option value="C">C種</option>
         </select>
     </td>
     <td>
@@ -163,10 +164,10 @@
     </td></tr>
     <tr><td>
         <select id="e2" onchange="hantei()">
-	    <option value="1">D種</option>
-	    <option value="2" selected>A種</option>
-	    <option value="3">B種</option>
-	    <option value="4">C種</option>
+	    <option value="D">D種</option>
+	    <option value="A" selected>A種</option>
+	    <option value="B">B種</option>
+	    <option value="C">C種</option>
         </select>
     </td>
     <td>
@@ -174,10 +175,10 @@
     </td></tr>
     <tr><td>
         <select id="e3" onchange="hantei()">
-	    <option value="1">D種</option>
-	    <option value="2">A種</option>
-	    <option value="3" selected>B種</option>
-	    <option value="4">C種</option>
+	    <option value="D">D種</option>
+	    <option value="A">A種</option>
+	    <option value="B" selected>B種</option>
+	    <option value="C">C種</option>
         </select>
     </td><td>
 	<input type="tel" id="e3value" size="5" onchange="hantei()">Ω<br><span id="e3hantei"></span>
@@ -185,27 +186,39 @@
 </table>
 
 <p>調査結果
-    <label><input type="radio" name="kekka" value="1" onclick="tekigo('none')" checked>適合</label>　　
-    <label><input type="radio" name="kekka" value="2" onclick="tekigo('none')">不適合</label>　　
-    <label><input type="radio" name="kekka" value="3" onclick="tekigo('block')">調査不能</label>
+    <label><input type="radio" name="kekka" value="1" onclick="viewSwitch('', 'none')" checked>適合</label>　　
+    <label><input type="radio" name="kekka" value="2" onclick="viewSwitch('futekigo', 'block')">不適合</label>　　
+    <label><input type="radio" name="kekka" value="3" onclick="viewSwitch('fucho', 'block')">調査不能</label>
     <div id="fucho" hidden>
 	調査不能理由：
-        <select id="fucho_riyu">
+        <select id="fuchoRiyu">
 	    <option value="1">立ち合い者不在のため</option>
 	    <option value="2">施錠・閉鎖のため</option>
 	    <option value="3">調査場所不明</option>
-	    <option value="4">その他</option>
+	    <option value="4">その他（連絡事項に記載）</option>
+        </select>
+    </div>
+    <div id="futekigo" hidden>
+	不適合理由：
+        <select id="futekigoRiyu">
+	    <option value="1">機器絶縁抵抗不良</option>
+	    <option value="2">配線絶縁抵抗不良</option>
+	    <option value="3">配線器具コード不良</option>
+	    <option value="4">配線仮工事</option>
+      <option value="5">電線・配線・支持物不良</option>
+      <option value="6">接地不良</option>
+      <option value="7">その他（連絡事項に記載）</option>
         </select>
     </div>
 
 <p>電気工作物区分
-<select id="kousak">
+<select id="kosaku">
     <option value="1" selected>一般用</option>
     <option value="2">特定</option>
     <option value="3">受託</option>
 </select>
 
-<p>連絡事項<br><textarea cols=20 rows=3></textarea>
+<p>連絡事項<br><textarea cols=20 rows=3 id="renraku"></textarea>
 
 <p><button id="mail">メール起動</button>
 </body>
