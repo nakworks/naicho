@@ -1,9 +1,10 @@
-var CACHE_NAME = 'pwa-sample-caches';
+var CACHE_NAME = 'pwa-naicho-caches';
 var urlsToCache = [
-    '/shokai/samplePage.html',
-    '/shokai/mailTrigger.js',
-    '/shokai/images/icon1.png',
-    '/shokai/images/icon2.png'
+    '/naicho/index.html',
+    '/naicho/mailTrigger.js',
+    '/naicho/images/icon1.png',
+    '/naicho/images/icon2.png'
+    '/naicho/images/icon3.png'
 ];
 
 // インストール処理
